@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:payments;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  flyway:
+    enabled: false
+
+app:
+  jwt:
+    secret: test-secret-test-secret-test-secret-test-secret-1234
+    expiration-seconds: 3600
+  gateway:
+    provider: mock
+    retry:
+      max-attempts: 3
+      initial-interval-ms: 1
+      multiplier: 1.5
+
+logging:
+  level:
+    root: WARN
