@@ -69,6 +69,7 @@ jobs:
   ai-review-with-judge:
     runs-on: ubuntu-latest
     steps:
+      # Run the judge-enhanced review independently so both reports are available.
       - name: Checkout PR code
         uses: actions/checkout@v5
         with:
