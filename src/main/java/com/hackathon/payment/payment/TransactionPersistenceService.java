@@ -55,6 +55,14 @@ public class TransactionPersistenceService {
         return transactionRepository.save(txn);
     }
 
+    @Transactional
+    public Transaction cancel(UUID id) {
+        Transaction txn = transactionRepository.findById(id).orElseThrow();
+        txn.setStatus(TransactionStatus.CANCELLED);
+        txn.setFailureReason("Cancelled by customer");
+        return transactionRepository.save(txn);
+    }
+
     private static String generateTransactionId() {
         return "TXN-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
     }

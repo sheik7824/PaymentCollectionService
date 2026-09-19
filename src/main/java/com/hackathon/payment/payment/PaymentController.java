@@ -49,6 +49,13 @@ public class PaymentController {
         return paymentService.getByTransactionId(transactionId, user);
     }
 
+    @PostMapping("/{transactionId}/cancel")
+    @Operation(summary = "Cancel a payment")
+    public PaymentResponse cancelPayment(@PathVariable String transactionId,
+                                         @AuthenticationPrincipal AuthenticatedUser user) {
+        return paymentService.cancelPayment(transactionId, user);
+    }
+
     @GetMapping("/order/{orderId}")
     @Operation(summary = "List transactions for an order id")
     public List<PaymentResponse> getByOrderId(@PathVariable String orderId,
