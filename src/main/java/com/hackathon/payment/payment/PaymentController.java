@@ -2,6 +2,7 @@ package com.hackathon.payment.payment;
 
 import com.hackathon.payment.payment.dto.CreatePaymentRequest;
 import com.hackathon.payment.payment.dto.PaymentResponse;
+import com.hackathon.payment.payment.dto.ReconciliationResponse;
 import com.hackathon.payment.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -47,6 +48,12 @@ public class PaymentController {
     public PaymentResponse getByTransactionId(@PathVariable String transactionId,
                                               @AuthenticationPrincipal AuthenticatedUser user) {
         return paymentService.getByTransactionId(transactionId, user);
+    }
+
+    @GetMapping("/reconciliation")
+    @Operation(summary = "Get payment reconciliation totals")
+    public ReconciliationResponse getReconciliation(@AuthenticationPrincipal AuthenticatedUser user) {
+        return paymentService.getReconciliation(user);
     }
 
     @GetMapping("/order/{orderId}")

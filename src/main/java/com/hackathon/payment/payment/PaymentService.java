@@ -8,6 +8,7 @@ import com.hackathon.payment.gateway.PaymentGateway;
 import com.hackathon.payment.gateway.PaymentGatewayException;
 import com.hackathon.payment.payment.dto.CreatePaymentRequest;
 import com.hackathon.payment.payment.dto.PaymentResponse;
+import com.hackathon.payment.payment.dto.ReconciliationResponse;
 import com.hackathon.payment.payment.idempotency.IdempotencyService;
 import com.hackathon.payment.security.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
@@ -79,6 +80,19 @@ public class PaymentService {
             throw new AccessDeniedException("Not permitted to view this transaction");
         }
         return PaymentResponse.from(txn);
+    }
+
+    @Transactional(readOnly = true)
+    public ReconciliationResponse getReconciliation(AuthenticatedUser user) {
+        List<Transaction> transactions = transactionRepository.findAll();
+        return new ReconciliationResponse(
+                transactions.size(),
+                transactions.stream().filter(t -> t.getStatus() == TransactionStatus.SUCCESS).count(),
+                transactions.stream().filter(t -> t.getStatus() == TransactionStatus.PENDING).count(),
+                transactions.stream().filter(t -> t.getStatus() == TransactionStatus.FAILED).count(),
+                transactions.stream()
+                        .map(Transaction::getAmount)
+                        .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add));
     }
 
     @Transactional(readOnly = true)
