@@ -49,6 +49,12 @@ public class PaymentController {
         return paymentService.getByTransactionId(transactionId, user);
     }
 
+    @GetMapping("/history")
+    @Operation(summary = "Get payment history")
+    public List<PaymentResponse> getPaymentHistory(@AuthenticationPrincipal AuthenticatedUser user) {
+        return paymentService.getPaymentHistory(user);
+    }
+
     @GetMapping("/order/{orderId}")
     @Operation(summary = "List transactions for an order id")
     public List<PaymentResponse> getByOrderId(@PathVariable String orderId,
