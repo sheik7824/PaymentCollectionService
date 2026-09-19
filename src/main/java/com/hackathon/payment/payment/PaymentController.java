@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -47,6 +48,13 @@ public class PaymentController {
     public PaymentResponse getByTransactionId(@PathVariable String transactionId,
                                               @AuthenticationPrincipal AuthenticatedUser user) {
         return paymentService.getByTransactionId(transactionId, user);
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search payments by order or customer reference")
+    public List<PaymentResponse> searchPayments(@RequestParam String query,
+                                                @AuthenticationPrincipal AuthenticatedUser user) {
+        return paymentService.searchPayments(query, user);
     }
 
     @GetMapping("/order/{orderId}")

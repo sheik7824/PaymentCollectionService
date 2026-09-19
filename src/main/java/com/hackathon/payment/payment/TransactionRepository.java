@@ -11,4 +11,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     Optional<Transaction> findByTransactionId(String transactionId);
 
     List<Transaction> findByOrderIdOrderByCreatedAtDesc(String orderId);
+
+    List<Transaction> findByOrderIdContainingIgnoreCaseOrCustomerReferenceContainingIgnoreCase(
+            String orderId, String customerReference);
 }

@@ -82,6 +82,15 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
+    public List<PaymentResponse> searchPayments(String query, AuthenticatedUser user) {
+        return transactionRepository
+                .findByOrderIdContainingIgnoreCaseOrCustomerReferenceContainingIgnoreCase(query, query)
+                .stream()
+                .map(PaymentResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<PaymentResponse> getByOrderId(String orderId, AuthenticatedUser user) {
         List<PaymentResponse> visible = transactionRepository.findByOrderIdOrderByCreatedAtDesc(orderId).stream()
                 .filter(t -> canView(t, user))
