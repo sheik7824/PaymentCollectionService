@@ -2,6 +2,7 @@ package com.hackathon.payment.payment;
 
 import com.hackathon.payment.gateway.GatewayChargeResponse;
 import com.hackathon.payment.payment.dto.CreatePaymentRequest;
+import com.hackathon.payment.payment.dto.RefundPaymentRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +53,15 @@ public class TransactionPersistenceService {
         Transaction txn = transactionRepository.findById(id).orElseThrow();
         txn.setStatus(TransactionStatus.FAILED);
         txn.setFailureReason(reason);
+        return transactionRepository.save(txn);
+    }
+
+    @Transactional
+    public Transaction refund(UUID id, RefundPaymentRequest request) {
+        Transaction txn = transactionRepository.findById(id).orElseThrow();
+        txn.setAmount(request.amount());
+        txn.setStatus(TransactionStatus.REFUNDED);
+        txn.setFailureReason(request.reason());
         return transactionRepository.save(txn);
     }
 

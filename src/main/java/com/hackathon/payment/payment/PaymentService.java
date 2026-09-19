@@ -8,6 +8,7 @@ import com.hackathon.payment.gateway.PaymentGateway;
 import com.hackathon.payment.gateway.PaymentGatewayException;
 import com.hackathon.payment.payment.dto.CreatePaymentRequest;
 import com.hackathon.payment.payment.dto.PaymentResponse;
+import com.hackathon.payment.payment.dto.RefundPaymentRequest;
 import com.hackathon.payment.payment.idempotency.IdempotencyService;
 import com.hackathon.payment.security.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +79,16 @@ public class PaymentService {
         if (!canView(txn, user)) {
             throw new AccessDeniedException("Not permitted to view this transaction");
         }
+        return PaymentResponse.from(txn);
+    }
+
+    public PaymentResponse refundPayment(String transactionId, RefundPaymentRequest request,
+                                         AuthenticatedUser user) {
+        Transaction txn = transactionRepository.findByTransactionId(transactionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found: " + transactionId));
+        txn = persistence.refund(txn.getId(), request);
+        auditService.record(user.id(), "PAYMENT_REFUND", "TRANSACTION", txn.getTransactionId(),
+                txn.getStatus().name(), request.reason());
         return PaymentResponse.from(txn);
     }
 

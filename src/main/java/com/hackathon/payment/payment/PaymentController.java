@@ -2,6 +2,7 @@ package com.hackathon.payment.payment;
 
 import com.hackathon.payment.payment.dto.CreatePaymentRequest;
 import com.hackathon.payment.payment.dto.PaymentResponse;
+import com.hackathon.payment.payment.dto.RefundPaymentRequest;
 import com.hackathon.payment.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -47,6 +48,14 @@ public class PaymentController {
     public PaymentResponse getByTransactionId(@PathVariable String transactionId,
                                               @AuthenticationPrincipal AuthenticatedUser user) {
         return paymentService.getByTransactionId(transactionId, user);
+    }
+
+    @PostMapping("/{transactionId}/refund")
+    @Operation(summary = "Refund a payment")
+    public PaymentResponse refundPayment(@PathVariable String transactionId,
+                                         @RequestBody RefundPaymentRequest request,
+                                         @AuthenticationPrincipal AuthenticatedUser user) {
+        return paymentService.refundPayment(transactionId, request, user);
     }
 
     @GetMapping("/order/{orderId}")
