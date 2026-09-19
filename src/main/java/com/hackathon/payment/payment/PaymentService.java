@@ -81,6 +81,15 @@ public class PaymentService {
         return PaymentResponse.from(txn);
     }
 
+    public PaymentResponse cancelPayment(String transactionId, AuthenticatedUser user) {
+        Transaction txn = transactionRepository.findByTransactionId(transactionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found: " + transactionId));
+        txn = persistence.cancel(txn.getId());
+        auditService.record(user.id(), "PAYMENT_CANCEL", "TRANSACTION", txn.getTransactionId(),
+                txn.getStatus().name(), txn.getFailureReason());
+        return PaymentResponse.from(txn);
+    }
+
     @Transactional(readOnly = true)
     public List<PaymentResponse> getByOrderId(String orderId, AuthenticatedUser user) {
         List<PaymentResponse> visible = transactionRepository.findByOrderIdOrderByCreatedAtDesc(orderId).stream()
