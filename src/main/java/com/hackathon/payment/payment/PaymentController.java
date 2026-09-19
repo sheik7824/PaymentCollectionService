@@ -1,6 +1,7 @@
 package com.hackathon.payment.payment;
 
 import com.hackathon.payment.payment.dto.CreatePaymentRequest;
+import com.hackathon.payment.payment.dto.CreateScheduledPaymentRequest;
 import com.hackathon.payment.payment.dto.PaymentResponse;
 import com.hackathon.payment.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -40,6 +42,24 @@ public class PaymentController {
             @AuthenticationPrincipal AuthenticatedUser user) {
         PaymentResponse response = paymentService.createPayment(request, idempotencyKey, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/scheduled")
+    @Operation(summary = "Create an automatic payment")
+    public ResponseEntity<java.util.UUID> createScheduledPayment(
+            @RequestBody CreateScheduledPaymentRequest request,
+            @AuthenticationPrincipal AuthenticatedUser user) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(paymentService.createScheduledPayment(request, user));
+    }
+
+    @DeleteMapping("/scheduled/{scheduleId}")
+    @Operation(summary = "Cancel an automatic payment")
+    public ResponseEntity<Void> cancelScheduledPayment(
+            @PathVariable java.util.UUID scheduleId,
+            @AuthenticationPrincipal AuthenticatedUser user) {
+        paymentService.cancelScheduledPayment(scheduleId, user);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{transactionId}")
