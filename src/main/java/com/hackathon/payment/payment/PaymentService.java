@@ -82,6 +82,14 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
+    public List<PaymentResponse> getPaymentHistory(AuthenticatedUser user) {
+        return transactionRepository.findAll().stream()
+                .sorted((left, right) -> right.getCreatedAt().compareTo(left.getCreatedAt()))
+                .map(PaymentResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<PaymentResponse> getByOrderId(String orderId, AuthenticatedUser user) {
         List<PaymentResponse> visible = transactionRepository.findByOrderIdOrderByCreatedAtDesc(orderId).stream()
                 .filter(t -> canView(t, user))
