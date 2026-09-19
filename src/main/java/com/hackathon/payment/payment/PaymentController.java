@@ -1,7 +1,9 @@
 package com.hackathon.payment.payment;
 
 import com.hackathon.payment.payment.dto.CreatePaymentRequest;
+import com.hackathon.payment.payment.dto.CreateScheduledPaymentRequest;
 import com.hackathon.payment.payment.dto.PaymentResponse;
+import com.hackathon.payment.payment.dto.ScheduledPaymentResponse;
 import com.hackathon.payment.security.AuthenticatedUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,6 +42,22 @@ public class PaymentController {
             @AuthenticationPrincipal AuthenticatedUser user) {
         PaymentResponse response = paymentService.createPayment(request, idempotencyKey, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/scheduled")
+    @Operation(summary = "Schedule an automatic payment")
+    public ResponseEntity<ScheduledPaymentResponse> createScheduledPayment(
+            @RequestBody CreateScheduledPaymentRequest request,
+            @AuthenticationPrincipal AuthenticatedUser user) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(paymentService.createScheduledPayment(request, user));
+    }
+
+    @GetMapping("/scheduled")
+    @Operation(summary = "List scheduled payments")
+    public List<ScheduledPaymentResponse> getScheduledPayments(
+            @AuthenticationPrincipal AuthenticatedUser user) {
+        return paymentService.getScheduledPayments(user);
     }
 
     @GetMapping("/{transactionId}")

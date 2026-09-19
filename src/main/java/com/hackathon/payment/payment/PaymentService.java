@@ -7,7 +7,9 @@ import com.hackathon.payment.gateway.GatewayChargeResponse;
 import com.hackathon.payment.gateway.PaymentGateway;
 import com.hackathon.payment.gateway.PaymentGatewayException;
 import com.hackathon.payment.payment.dto.CreatePaymentRequest;
+import com.hackathon.payment.payment.dto.CreateScheduledPaymentRequest;
 import com.hackathon.payment.payment.dto.PaymentResponse;
+import com.hackathon.payment.payment.dto.ScheduledPaymentResponse;
 import com.hackathon.payment.payment.idempotency.IdempotencyService;
 import com.hackathon.payment.security.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class PaymentService {
     private final PaymentGateway paymentGateway;
     private final RetryTemplate gatewayRetryTemplate;
     private final AuditService auditService;
+    private final ScheduledPaymentRepository scheduledPaymentRepository;
 
     /**
      * Flow: idempotency check -> create PROCESSING txn -> gateway (with retry) -> persist outcome.
@@ -69,6 +72,29 @@ public class PaymentService {
                 txn.getStatus().name(), txn.getFailureReason());
         log.info("Payment txn={} order={} status={}", txn.getTransactionId(), txn.getOrderId(), txn.getStatus());
         return PaymentResponse.from(txn);
+    }
+
+    @Transactional
+    public ScheduledPaymentResponse createScheduledPayment(CreateScheduledPaymentRequest request,
+                                                           AuthenticatedUser user) {
+        ScheduledPayment payment = ScheduledPayment.builder()
+                .id(java.util.UUID.randomUUID())
+                .createdBy(user.id())
+                .orderId(request.orderId())
+                .amount(request.amount())
+                .currency(request.currency())
+                .paymentMethodToken(request.paymentMethodToken())
+                .scheduleExpression(request.scheduleExpression())
+                .nextRunDate(request.nextRunDate())
+                .build();
+        return ScheduledPaymentResponse.from(scheduledPaymentRepository.save(payment));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScheduledPaymentResponse> getScheduledPayments(AuthenticatedUser user) {
+        return scheduledPaymentRepository.findAll().stream()
+                .map(ScheduledPaymentResponse::from)
+                .toList();
     }
 
     @Transactional(readOnly = true)
